@@ -1,9 +1,10 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { MessageCircle, Send } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Message {
   id: string;
@@ -26,6 +27,12 @@ const ContextChat: React.FC<ContextChatProps> = ({ onSendMessage }) => {
     }
   ]);
   const [newMessage, setNewMessage] = useState("");
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Scroll to bottom of messages when new messages are added
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const handleSendMessage = () => {
     if (!newMessage.trim()) return;
@@ -57,7 +64,7 @@ const ContextChat: React.FC<ContextChatProps> = ({ onSendMessage }) => {
   };
 
   return (
-    <Card className="w-full">
+    <Card className="w-full h-full flex flex-col">
       <CardHeader className="pb-2">
         <CardTitle className="text-lg flex items-center gap-2">
           <MessageCircle className="h-5 w-5 text-primary" />
@@ -65,24 +72,27 @@ const ContextChat: React.FC<ContextChatProps> = ({ onSendMessage }) => {
         </CardTitle>
       </CardHeader>
       
-      <CardContent className="space-y-4">
-        <div className="messages-container max-h-[300px] overflow-y-auto space-y-3 p-1">
-          {messages.map((message) => (
-            <div 
-              key={message.id}
-              className={`message p-3 rounded-lg ${
-                message.isUser 
-                  ? 'bg-primary text-primary-foreground ml-8' 
-                  : 'bg-muted text-muted-foreground mr-8'
-              }`}
-            >
-              <p className="text-sm">{message.text}</p>
-              <div className="text-xs mt-1 opacity-70">
-                {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+      <CardContent className="flex-grow overflow-hidden">
+        <ScrollArea className="h-[300px] pr-4">
+          <div className="space-y-3">
+            {messages.map((message) => (
+              <div 
+                key={message.id}
+                className={`message p-3 rounded-lg ${
+                  message.isUser 
+                    ? 'bg-primary text-primary-foreground ml-8' 
+                    : 'bg-muted text-muted-foreground mr-8'
+                }`}
+              >
+                <p className="text-sm">{message.text}</p>
+                <div className="text-xs mt-1 opacity-70">
+                  {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+            <div ref={messagesEndRef} />
+          </div>
+        </ScrollArea>
       </CardContent>
       
       <CardFooter>
