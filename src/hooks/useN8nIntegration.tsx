@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useToast } from "@/components/ui/use-toast";
 
@@ -42,12 +43,19 @@ export function useN8nIntegration() {
     }
 
     setIsExporting(true);
+    console.log("Attempting to send data to webhook:", webhookUrl);
+    console.log("Payload preview:", { 
+      hasImage: !!imageFile, 
+      styleGuide: styleGuide.substring(0, 20) + "...", 
+      contextMessages 
+    });
     
     try {
       // Convert image to base64 if available
       let base64Image = null;
       if (imageFile) {
         base64Image = await fileToBase64(imageFile);
+        console.log("Image converted to base64 successfully");
       }
       
       // Prepare payload for n8n
@@ -60,30 +68,44 @@ export function useN8nIntegration() {
         stylePreset
       };
       
-      // Send to n8n webhook
-      const response = await fetch(webhookUrl, {
+      // Send to n8n webhook using fetch with mode: 'cors'
+      console.log("Sending payload to webhook...");
+      
+      await fetch(webhookUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(payload),
-        mode: 'no-cors' // This might be necessary for cross-origin requests
+        // Try with cors mode first, since no-cors limits functionality
+        mode: 'cors'
+      }).catch(async (corsError) => {
+        console.log("CORS error, trying with no-cors mode", corsError);
+        // Fallback to no-cors if cors fails
+        return fetch(webhookUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+          mode: 'no-cors'
+        });
       });
       
-      // Since we're using no-cors, we can't read the response
-      // Show a success message instead
+      console.log("Request sent successfully");
+      
       toast({
         title: "Export successful",
         description: "Your creative brief has been sent to n8n for processing with ChatGPT."
       });
       
     } catch (error) {
+      console.error("Error exporting to n8n:", error);
       toast({
         title: "Export failed",
         description: "Failed to send data to n8n. Please check your webhook URL and try again.",
         variant: "destructive"
       });
-      console.error("Error exporting to n8n:", error);
     } finally {
       setIsExporting(false);
     }
