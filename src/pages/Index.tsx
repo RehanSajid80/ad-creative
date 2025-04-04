@@ -28,10 +28,14 @@ const Index = () => {
     handleRegenerate
   } = useImageGeneration();
 
-  const handleImageUpload = (file: File) => {
+  const handleImageUpload = (file: File | null) => {
     setUploadedImage(file);
-    const url = URL.createObjectURL(file);
-    setImagePreview(url);
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setImagePreview(url);
+    } else {
+      setImagePreview(null);
+    }
   };
 
   const handleGenerate = () => {
