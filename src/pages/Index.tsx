@@ -5,10 +5,12 @@ import StyleGuideInput from '@/components/StyleGuideInput';
 import ResultsGallery from '@/components/ResultsGallery';
 import GenerationControls from '@/components/GenerationControls';
 import ContextChat from '@/components/ContextChat';
+import N8nExport from '@/components/N8nExport';
 import { useImageGeneration } from '@/hooks/useImageGeneration';
+import { useN8nIntegration } from '@/hooks/useN8nIntegration';
 import { Toaster } from "@/components/ui/toaster";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Wand2, Image as ImageIcon, PaintBucket, ScanSearch, MessageCircle } from "lucide-react";
+import { Wand2, Image as ImageIcon, PaintBucket, ScanSearch, MessageCircle, ExternalLink } from "lucide-react";
 
 const Index = () => {
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
@@ -29,6 +31,13 @@ const Index = () => {
     handleDownload,
     handleRegenerate
   } = useImageGeneration();
+
+  const {
+    isExporting,
+    webhookUrl,
+    setWebhookUrl,
+    exportToN8n
+  } = useN8nIntegration();
 
   const handleImageUpload = (file: File | null) => {
     setUploadedImage(file);
@@ -58,6 +67,17 @@ const Index = () => {
     // or be stored for the next generation cycle
   };
 
+  const handleExportToN8n = () => {
+    exportToN8n(
+      uploadedImage,
+      styleGuide,
+      referenceUrl,
+      contextMessages,
+      styleStrength,
+      selectedStyle
+    );
+  };
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       <header className="text-center mb-8">
@@ -75,7 +95,7 @@ const Index = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           <Tabs defaultValue="upload" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="upload" className="flex items-center gap-2">
                 <ImageIcon className="h-4 w-4" />
                 <span>Upload Image</span>
@@ -87,6 +107,10 @@ const Index = () => {
               <TabsTrigger value="chat" className="flex items-center gap-2">
                 <MessageCircle className="h-4 w-4" />
                 <span>Context Chat</span>
+              </TabsTrigger>
+              <TabsTrigger value="n8n" className="flex items-center gap-2">
+                <ExternalLink className="h-4 w-4" />
+                <span>n8n Export</span>
               </TabsTrigger>
             </TabsList>
             
@@ -117,6 +141,16 @@ const Index = () => {
             <TabsContent value="chat">
               <ContextChat onSendMessage={handleContextMessage} />
             </TabsContent>
+
+            <TabsContent value="n8n">
+              <N8nExport 
+                webhookUrl={webhookUrl}
+                onWebhookUrlChange={setWebhookUrl}
+                onExport={handleExportToN8n}
+                isExporting={isExporting}
+                hasUploadedImage={!!uploadedImage}
+              />
+            </TabsContent>
           </Tabs>
         </div>
         
@@ -146,7 +180,7 @@ const Index = () => {
                 <li>Use the context chat to describe enhancement ideas</li>
                 <li>Adjust generation controls</li>
                 <li>Generate variations and provide feedback</li>
-                <li>Download your favorite result</li>
+                <li>Or export to n8n + ChatGPT for advanced processing</li>
               </ol>
             </div>
           </div>
