@@ -7,7 +7,7 @@ import GenerationControls from '@/components/GenerationControls';
 import { useImageGeneration } from '@/hooks/useImageGeneration';
 import { Toaster } from "@/components/ui/toaster";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Wand2, Image as ImageIcon, PaintBucket, Lens } from "lucide-react";
+import { Wand2, Image as ImageIcon, PaintBucket, ScanSearch } from "lucide-react";
 
 const Index = () => {
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
@@ -49,7 +49,7 @@ const Index = () => {
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       <header className="text-center mb-8">
         <div className="flex items-center justify-center gap-2 mb-2">
-          <Lens className="h-8 w-8 text-primary" />
+          <ScanSearch className="h-8 w-8 text-primary" />
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
             AnalyzeLens
           </h1>
