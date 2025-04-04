@@ -33,7 +33,8 @@ export function useImageGeneration() {
     referenceUrl: string, 
     count: number,
     styleStrength: number,
-    stylePreset: string
+    stylePreset: string,
+    contextMessages: string[] = []
   ) => {
     if (!imageFile) {
       toast({
@@ -48,6 +49,9 @@ export function useImageGeneration() {
     
     try {
       // In a real implementation, this would call an actual AI service
+      // and pass the contextMessages as well to inform the generation
+      console.log("Context messages for generation:", contextMessages);
+      
       // For now, we'll simulate the generation with a timeout
       await new Promise((resolve) => setTimeout(resolve, 3000));
       

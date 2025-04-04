@@ -4,10 +4,11 @@ import ImageUploader from '@/components/ImageUploader';
 import StyleGuideInput from '@/components/StyleGuideInput';
 import ResultsGallery from '@/components/ResultsGallery';
 import GenerationControls from '@/components/GenerationControls';
+import ContextChat from '@/components/ContextChat';
 import { useImageGeneration } from '@/hooks/useImageGeneration';
 import { Toaster } from "@/components/ui/toaster";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Wand2, Image as ImageIcon, PaintBucket, ScanSearch } from "lucide-react";
+import { Wand2, Image as ImageIcon, PaintBucket, ScanSearch, MessageCircle } from "lucide-react";
 
 const Index = () => {
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
@@ -17,6 +18,7 @@ const Index = () => {
   const [variationCount, setVariationCount] = useState(3);
   const [styleStrength, setStyleStrength] = useState(70);
   const [selectedStyle, setSelectedStyle] = useState('balanced');
+  const [contextMessages, setContextMessages] = useState<string[]>([]);
   
   const {
     isGenerating,
@@ -45,8 +47,15 @@ const Index = () => {
       referenceUrl,
       variationCount,
       styleStrength,
-      selectedStyle
+      selectedStyle,
+      contextMessages
     );
+  };
+
+  const handleContextMessage = (message: string) => {
+    setContextMessages([...contextMessages, message]);
+    // In a real implementation, this could trigger additional AI processing
+    // or be stored for the next generation cycle
   };
 
   return (
@@ -66,7 +75,7 @@ const Index = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           <Tabs defaultValue="upload" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="upload" className="flex items-center gap-2">
                 <ImageIcon className="h-4 w-4" />
                 <span>Upload Image</span>
@@ -74,6 +83,10 @@ const Index = () => {
               <TabsTrigger value="results" className="flex items-center gap-2">
                 <PaintBucket className="h-4 w-4" />
                 <span>Results</span>
+              </TabsTrigger>
+              <TabsTrigger value="chat" className="flex items-center gap-2">
+                <MessageCircle className="h-4 w-4" />
+                <span>Context Chat</span>
               </TabsTrigger>
             </TabsList>
             
@@ -99,6 +112,10 @@ const Index = () => {
                 onDownload={handleDownload}
                 onRegenerate={handleRegenerate}
               />
+            </TabsContent>
+
+            <TabsContent value="chat">
+              <ContextChat onSendMessage={handleContextMessage} />
             </TabsContent>
           </Tabs>
         </div>
@@ -126,6 +143,7 @@ const Index = () => {
               <ol className="list-decimal ml-5 space-y-1 text-sm text-muted-foreground">
                 <li>Upload your image</li>
                 <li>Enter style guidelines and optional reference URL</li>
+                <li>Use the context chat to describe enhancement ideas</li>
                 <li>Adjust generation controls</li>
                 <li>Generate variations and provide feedback</li>
                 <li>Download your favorite result</li>
