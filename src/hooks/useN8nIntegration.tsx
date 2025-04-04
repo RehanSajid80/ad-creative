@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useToast } from "@/components/ui/use-toast";
 
@@ -97,4 +96,3 @@ export function useN8nIntegration() {
     exportToN8n
   };
 }
-
