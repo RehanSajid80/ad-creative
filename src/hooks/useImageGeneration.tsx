@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useToast } from "@/components/ui/use-toast";
 import { GeneratedImage } from '@/components/ResultsGallery';
@@ -17,8 +18,8 @@ export function useImageGeneration() {
     'https://images.unsplash.com/photo-1638803040283-7a5ffd48dad5',
   ];
 
-  // Text options to add to images
-  const textOptions = [
+  // Fallback text options (used if no context messages are provided)
+  const fallbackTextOptions = [
     "MODERN WORKSPACE",
     "CORPORATE EXCELLENCE",
     "BUSINESS INNOVATION",
@@ -34,6 +35,23 @@ export function useImageGeneration() {
     "rgba(249, 115, 22, 0.25)", // Bright orange overlay
     "rgba(14, 165, 233, 0.25)" // Ocean blue overlay
   ];
+
+  // Get text options from context messages or use fallbacks
+  const getTextOptions = (contextMessages: string[]): string[] => {
+    if (!contextMessages || contextMessages.length === 0) {
+      return fallbackTextOptions;
+    }
+    
+    // Process the messages to create more suitable text overlays
+    return contextMessages.map(message => {
+      // Extract a short phrase (up to 30 chars) and convert to uppercase for overlay styling
+      const shortPhrase = message.length > 30 
+        ? message.substring(0, 30).trim() + "..."
+        : message.trim();
+      
+      return shortPhrase.toUpperCase();
+    });
+  };
 
   const generateRandomDescription = () => {
     const adjectives = ['Vibrant', 'Bold', 'Energetic', 'Dynamic', 'Striking', 'Powerful'];
@@ -127,6 +145,9 @@ export function useImageGeneration() {
     try {
       // Convert the uploaded image to a data URL
       const imageUrl = URL.createObjectURL(uploadedImageFile);
+      
+      // Get text options from context messages or use fallbacks
+      const textOptions = getTextOptions(contextMessages);
       
       // For now, we'll use the uploaded image instead of placeholders
       const processedImages: GeneratedImage[] = [];
@@ -227,13 +248,13 @@ export function useImageGeneration() {
       const originalImageUrl = URL.createObjectURL(imageFile);
       
       // Get random text and color overlay
-      const randomTextIndex = Math.floor(Math.random() * textOptions.length);
+      const randomTextIndex = Math.floor(Math.random() * fallbackTextOptions.length);
       const randomColorIndex = Math.floor(Math.random() * colorOverlays.length);
       
       // Apply new effects
       const newImageUrl = await applyVibrantEffectToImage(
         originalImageUrl,
-        textOptions[randomTextIndex],
+        fallbackTextOptions[randomTextIndex],
         colorOverlays[randomColorIndex]
       );
       
@@ -242,7 +263,7 @@ export function useImageGeneration() {
           return {
             ...img,
             url: newImageUrl,
-            description: `${generateRandomDescription()} Text: ${textOptions[randomTextIndex]}`
+            description: `${generateRandomDescription()} Text: ${fallbackTextOptions[randomTextIndex]}`
           };
         }
         return img;

@@ -1,9 +1,9 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { MessageCircle, Send } from "lucide-react";
+import { MessageCircle, Send, TextCursorInput } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Message {
@@ -21,7 +21,7 @@ const ContextChat: React.FC<ContextChatProps> = ({ onSendMessage }) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome-msg",
-      text: "Welcome! Share your thoughts on the images or describe what enhancements you'd like to see.",
+      text: "Enter text to overlay on your images. Each message will be used as text for a different variation.",
       timestamp: new Date(),
       isUser: false,
     }
@@ -52,6 +52,18 @@ const ContextChat: React.FC<ContextChatProps> = ({ onSendMessage }) => {
       onSendMessage(newMessage);
     }
     
+    // Add system response
+    const systemMessage: Message = {
+      id: `msg-sys-${Date.now()}`,
+      text: "Text will be applied to your next image generation. Add more text messages for more variations.",
+      timestamp: new Date(),
+      isUser: false,
+    };
+    
+    setTimeout(() => {
+      setMessages(prev => [...prev, systemMessage]);
+    }, 300);
+    
     // Clear input
     setNewMessage("");
   };
@@ -67,9 +79,12 @@ const ContextChat: React.FC<ContextChatProps> = ({ onSendMessage }) => {
     <Card className="w-full h-full flex flex-col">
       <CardHeader className="pb-2">
         <CardTitle className="text-lg flex items-center gap-2">
-          <MessageCircle className="h-5 w-5 text-primary" />
-          <span>Context Chat</span>
+          <TextCursorInput className="h-5 w-5 text-primary" />
+          <span>Image Text Input</span>
         </CardTitle>
+        <CardDescription>
+          Enter text phrases to be overlaid on your generated images
+        </CardDescription>
       </CardHeader>
       
       <CardContent className="flex-grow overflow-hidden">
@@ -102,7 +117,7 @@ const ContextChat: React.FC<ContextChatProps> = ({ onSendMessage }) => {
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyDown={handleKeyPress}
             className="flex-grow min-h-[60px] resize-none"
-            placeholder="Type your message here..."
+            placeholder="Type text for image overlay..."
           />
           <Button 
             onClick={handleSendMessage} 
