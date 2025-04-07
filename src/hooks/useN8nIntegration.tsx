@@ -71,69 +71,62 @@ export function useN8nIntegration() {
         messageCount: contextMessages.length
       });
       
-      // First attempt with direct fetch
+      // Test with simplified payload first
+      const testPayload = {
+        test: true,
+        timestamp: new Date().toISOString(),
+        message: "Test webhook connection"
+      };
+      
+      console.log("Sending test payload first:", testPayload);
+      
       try {
-        const directResponse = await fetch(webhookUrl, {
+        const testResponse = await fetch(webhookUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(payload),
+          body: JSON.stringify(testPayload),
         });
         
-        console.log("Direct fetch response:", {
-          status: directResponse.status,
-          statusText: directResponse.statusText,
-          ok: directResponse.ok
+        console.log("Test payload response:", {
+          status: testResponse.status,
+          statusText: testResponse.statusText,
+          ok: testResponse.ok
         });
         
-        if (directResponse.ok) {
-          console.log("Request sent successfully with direct fetch");
-          toast({
-            title: "Export successful",
-            description: "Your creative brief has been sent to n8n for processing."
+        if (testResponse.ok) {
+          console.log("Test payload sent successfully, now sending full payload");
+          
+          const fullResponse = await fetch(webhookUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
           });
-          setIsExporting(false);
-          return;
+          
+          console.log("Full payload response:", {
+            status: fullResponse.status,
+            statusText: fullResponse.statusText,
+            ok: fullResponse.ok
+          });
+          
+          if (fullResponse.ok) {
+            toast({
+              title: "Export successful",
+              description: "Your creative brief has been sent to n8n for processing."
+            });
+            setIsExporting(false);
+            return;
+          }
         }
-      } catch (directError) {
-        console.error("Direct fetch error:", directError);
-        // Continue to other approaches
+      } catch (error) {
+        console.error("Error with direct fetch:", error);
       }
       
-      // Second attempt with cors mode
-      try {
-        const corsResponse = await fetch(webhookUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(payload),
-          mode: 'cors'
-        });
-        
-        console.log("CORS mode response:", {
-          status: corsResponse.status,
-          statusText: corsResponse.statusText,
-          ok: corsResponse.ok
-        });
-        
-        if (corsResponse.ok) {
-          console.log("Request sent successfully with CORS mode");
-          toast({
-            title: "Export successful",
-            description: "Your creative brief has been sent to n8n for processing."
-          });
-          setIsExporting(false);
-          return;
-        }
-      } catch (corsError) {
-        console.error("CORS mode error:", corsError);
-        // Continue to no-cors approach
-      }
-      
-      // Final attempt with no-cors mode
-      console.log("Attempting no-cors mode as last resort");
+      // Try with no-cors as fallback
+      console.log("Attempting no-cors mode as fallback");
       await fetch(webhookUrl, {
         method: 'POST',
         headers: {
@@ -143,7 +136,6 @@ export function useN8nIntegration() {
         mode: 'no-cors'
       });
       
-      // With no-cors we can't check the response status, so just show a toast
       console.log("Request sent with no-cors mode");
       toast({
         title: "Export attempted",

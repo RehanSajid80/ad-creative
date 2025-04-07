@@ -52,6 +52,9 @@ const N8nExport: React.FC<N8nExportProps> = ({
             className="font-mono text-sm"
           />
           <p className="text-xs text-muted-foreground">
+            Current webhook URL: <span className="font-medium">{webhookUrl || "None set"}</span>
+          </p>
+          <p className="text-xs text-muted-foreground">
             Enter your n8n webhook URL to send the image, style guide, and conversation context to ChatGPT for enhanced creative suggestions.
           </p>
         </div>
@@ -65,7 +68,7 @@ const N8nExport: React.FC<N8nExportProps> = ({
         )}
       </CardContent>
       
-      <CardFooter>
+      <CardFooter className="flex-col space-y-2">
         <Button 
           onClick={onExport} 
           disabled={!webhookUrl || isExporting || !hasUploadedImage}
@@ -83,6 +86,9 @@ const N8nExport: React.FC<N8nExportProps> = ({
             </>
           )}
         </Button>
+        <p className="text-xs text-center text-muted-foreground">
+          Testing webhook: {webhookUrl}
+        </p>
       </CardFooter>
     </Card>
   );
