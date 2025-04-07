@@ -6,11 +6,13 @@ import {
   CardContent,
   CardFooter,
   CardHeader,
-  CardTitle
+  CardTitle,
+  CardDescription
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ExternalLink, Loader2, SendToBack } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface N8nExportProps {
   webhookUrl: string;
@@ -34,6 +36,9 @@ const N8nExport: React.FC<N8nExportProps> = ({
           <ExternalLink className="h-5 w-5 text-primary" />
           <span>n8n Integration</span>
         </CardTitle>
+        <CardDescription>
+          Send your creative brief to n8n for advanced processing with AI
+        </CardDescription>
       </CardHeader>
       
       <CardContent className="space-y-4">
@@ -50,6 +55,14 @@ const N8nExport: React.FC<N8nExportProps> = ({
             Enter your n8n webhook URL to send the image, style guide, and conversation context to ChatGPT for enhanced creative suggestions.
           </p>
         </div>
+        
+        {!hasUploadedImage && (
+          <Alert variant="destructive">
+            <AlertDescription>
+              You need to upload an image first before exporting to n8n.
+            </AlertDescription>
+          </Alert>
+        )}
       </CardContent>
       
       <CardFooter>
