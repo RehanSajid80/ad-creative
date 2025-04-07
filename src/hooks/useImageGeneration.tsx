@@ -98,15 +98,20 @@ export function useImageGeneration() {
         ctx.drawImage(img, 0, 0);
         ctx.globalCompositeOperation = 'source-over';
         
-        // Add text
+        // Increase text size and make it more prominent
         ctx.fillStyle = 'white';
-        ctx.font = 'bold 32px Arial';
+        ctx.font = 'bold 64px Arial'; // Increased font size from 32px to 64px
         ctx.textAlign = 'center';
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
-        ctx.shadowBlur = 6;
-        ctx.shadowOffsetX = 2;
-        ctx.shadowOffsetY = 2;
-        ctx.fillText(textOption, canvas.width / 2, canvas.height - 50);
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.8)'; // Darker shadow
+        ctx.shadowBlur = 10; // Increased shadow blur
+        ctx.shadowOffsetX = 3;
+        ctx.shadowOffsetY = 3;
+        
+        // Center the text vertically
+        const textX = canvas.width / 2;
+        const textY = canvas.height - 100; // Adjusted vertical position
+        
+        ctx.fillText(textOption, textX, textY);
         
         // Return data URL
         resolve(canvas.toDataURL('image/jpeg'));
