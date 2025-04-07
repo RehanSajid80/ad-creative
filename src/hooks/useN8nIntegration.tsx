@@ -13,7 +13,7 @@ interface N8nPayload {
 
 export function useN8nIntegration() {
   const [isExporting, setIsExporting] = useState(false);
-  const [webhookUrl, setWebhookUrl] = useState<string>('https://analyzelens.app.n8n.cloud/webhook-test/loveable-webhook-trigger');
+  const [webhookUrl, setWebhookUrl] = useState<string>('https://analyzelens.app.n8n.cloud/webhook-test/adcreative-webhook');
   const { toast } = useToast();
 
   const fileToBase64 = (file: File): Promise<string> => {
