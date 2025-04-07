@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useToast } from "@/components/ui/use-toast";
 import { GeneratedImage } from '@/components/ResultsGallery';
@@ -6,6 +5,7 @@ import { GeneratedImage } from '@/components/ResultsGallery';
 export function useImageGeneration() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImages, setGeneratedImages] = useState<GeneratedImage[]>([]);
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const { toast } = useToast();
 
   // Sample placeholder images - we'll use the uploaded image instead
@@ -103,7 +103,7 @@ export function useImageGeneration() {
   };
 
   const generateImages = async (
-    imageFile: File | null, 
+    uploadedImageFile: File | null, 
     styleGuide: string, 
     referenceUrl: string, 
     count: number,
@@ -111,7 +111,7 @@ export function useImageGeneration() {
     stylePreset: string,
     contextMessages: string[] = []
   ) => {
-    if (!imageFile) {
+    if (!uploadedImageFile) {
       toast({
         title: "No image provided",
         description: "Please upload an image to generate variations.",
@@ -120,11 +120,13 @@ export function useImageGeneration() {
       return;
     }
 
+    setImageFile(uploadedImageFile);
+    
     setIsGenerating(true);
     
     try {
       // Convert the uploaded image to a data URL
-      const imageUrl = URL.createObjectURL(imageFile);
+      const imageUrl = URL.createObjectURL(uploadedImageFile);
       
       // For now, we'll use the uploaded image instead of placeholders
       const processedImages: GeneratedImage[] = [];
@@ -203,6 +205,15 @@ export function useImageGeneration() {
   const handleRegenerate = async (id: string) => {
     const image = generatedImages.find(img => img.id === id);
     if (!image) return;
+    
+    if (!imageFile) {
+      toast({
+        title: "Regeneration failed",
+        description: "No source image available for regeneration.",
+        variant: "destructive"
+      });
+      return;
+    }
     
     toast({
       title: "Regenerating image",
