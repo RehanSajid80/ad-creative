@@ -13,7 +13,9 @@ import {
   Wand2, 
   Loader2,
   Sliders,
-  InfoIcon
+  InfoIcon,
+  Sparkles,
+  TextCursorInput
 } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
@@ -71,7 +73,17 @@ const GenerationControls: React.FC<GenerationControlsProps> = ({
 
   return (
     <Card>
-      <CardContent className="pt-6 space-y-4">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-lg flex items-center gap-2">
+          <Sparkles className="h-4 w-4 text-primary" />
+          Vibrant Text Generator
+        </CardTitle>
+        <CardDescription>
+          Create colorful variations of your image with custom text
+        </CardDescription>
+      </CardHeader>
+
+      <CardContent className="pt-2 space-y-4">
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <Label htmlFor="variation-count">Number of Variations</Label>
@@ -90,7 +102,7 @@ const GenerationControls: React.FC<GenerationControlsProps> = ({
         
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <Label htmlFor="style-strength">Style Strength</Label>
+            <Label htmlFor="style-strength">Color Intensity</Label>
             <span className="text-sm font-medium">{styleStrength}%</span>
           </div>
           <Slider
@@ -105,18 +117,21 @@ const GenerationControls: React.FC<GenerationControlsProps> = ({
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="style-preset">Style Preset</Label>
+          <Label htmlFor="style-preset" className="flex items-center gap-2">
+            <TextCursorInput className="h-4 w-4 text-muted-foreground" />
+            Text Style
+          </Label>
           <Select
             value={selectedStyle}
             onValueChange={onStyleChange}
             disabled={isGenerating}
           >
             <SelectTrigger id="style-preset" className="w-full">
-              <SelectValue placeholder="Select a style" />
+              <SelectValue placeholder="Select text style" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="balanced">Balanced</SelectItem>
               <SelectItem value="vibrant">Vibrant</SelectItem>
+              <SelectItem value="bold">Bold</SelectItem>
               <SelectItem value="minimal">Minimal</SelectItem>
               <SelectItem value="corporate">Corporate</SelectItem>
               <SelectItem value="artistic">Artistic</SelectItem>

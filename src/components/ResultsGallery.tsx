@@ -30,9 +30,9 @@ const ResultsGallery: React.FC<ResultsGalleryProps> = ({
 }) => {
   if (isLoading) {
     return (
-      <div className="results-grid">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {[1, 2, 3].map((i) => (
-          <Card key={i} className="result-card">
+          <Card key={i} className="overflow-hidden">
             <CardContent className="p-0">
               <Skeleton className="w-full h-64" />
             </CardContent>
@@ -52,21 +52,22 @@ const ResultsGallery: React.FC<ResultsGalleryProps> = ({
     return (
       <div className="text-center py-12">
         <p className="text-muted-foreground">
-          No results yet. Upload an image and provide style guidelines to generate variations.
+          No results yet. Upload an image and press Generate to create vibrant variations with text.
         </p>
       </div>
     );
   }
 
   return (
-    <div className="results-grid">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
       {images.map((image) => (
-        <Card key={image.id} className="result-card hover-scale">
+        <Card key={image.id} className="overflow-hidden transition-all duration-300 hover:shadow-lg">
           <CardContent className="p-0">
             <img
               src={image.url}
-              alt={`Generated variation ${image.id}`}
+              alt={`Vibrant variation with text ${image.id}`}
               className="w-full h-auto object-cover"
+              loading="lazy"
             />
           </CardContent>
           <CardHeader className="py-3 px-4">
@@ -79,6 +80,7 @@ const ResultsGallery: React.FC<ResultsGalleryProps> = ({
                 size="icon"
                 className="h-8 w-8"
                 onClick={() => onLike(image.id)}
+                title="Like this variation"
               >
                 <ThumbsUp className="h-4 w-4" />
               </Button>
@@ -87,6 +89,7 @@ const ResultsGallery: React.FC<ResultsGalleryProps> = ({
                 size="icon"
                 className="h-8 w-8"
                 onClick={() => onDislike(image.id)}
+                title="Dislike this variation"
               >
                 <ThumbsDown className="h-4 w-4" />
               </Button>
@@ -97,6 +100,7 @@ const ResultsGallery: React.FC<ResultsGalleryProps> = ({
                 size="icon"
                 className="h-8 w-8"
                 onClick={() => onRegenerate(image.id)}
+                title="Generate new variation"
               >
                 <Sparkles className="h-4 w-4" />
               </Button>
@@ -105,6 +109,7 @@ const ResultsGallery: React.FC<ResultsGalleryProps> = ({
                 size="icon"
                 className="h-8 w-8"
                 onClick={() => onDownload(image.id)}
+                title="Download this image"
               >
                 <Download className="h-4 w-4" />
               </Button>
