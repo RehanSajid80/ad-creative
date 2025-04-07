@@ -4,17 +4,23 @@ import { Button } from "@/components/ui/button";
 import { 
   Card,
   CardContent,
-  CardFooter
+  CardFooter,
+  CardHeader,
+  CardTitle,
+  CardDescription
 } from "@/components/ui/card";
 import { 
   Wand2, 
-  RefreshCw, 
   Loader2,
-  Sliders
+  Sliders,
+  InfoIcon
 } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useToast } from "@/components/ui/use-toast";
 
 interface GenerationControlsProps {
   onGenerate: () => void;
@@ -26,6 +32,8 @@ interface GenerationControlsProps {
   onStyleStrengthChange: (value: number) => void;
   selectedStyle: string;
   onStyleChange: (value: string) => void;
+  webhookUrl: string;
+  onWebhookUrlChange: (url: string) => void;
 }
 
 const GenerationControls: React.FC<GenerationControlsProps> = ({
@@ -37,8 +45,30 @@ const GenerationControls: React.FC<GenerationControlsProps> = ({
   styleStrength,
   onStyleStrengthChange,
   selectedStyle,
-  onStyleChange
+  onStyleChange,
+  webhookUrl,
+  onWebhookUrlChange
 }) => {
+  const { toast } = useToast();
+
+  // Sample JSON to show in the tooltip for n8n webhook configuration
+  const sampleJson = `{
+  "uploadedImage": "base64_encoded_image_data",
+  "styleGuide": "Modern minimalist design...",
+  "referenceUrl": "https://example.com/brand",
+  "contextMessages": ["Target audience...", "..."],
+  "styleStrength": 70,
+  "stylePreset": "balanced"
+}`;
+
+  const copyJsonStructure = () => {
+    navigator.clipboard.writeText(sampleJson);
+    toast({
+      title: "Copied to clipboard",
+      description: "The JSON structure has been copied to your clipboard."
+    });
+  };
+
   return (
     <Card>
       <CardContent className="pt-6 space-y-4">
@@ -93,6 +123,45 @@ const GenerationControls: React.FC<GenerationControlsProps> = ({
             </SelectContent>
           </Select>
         </div>
+
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="webhook-url" className="flex items-center gap-1">
+              n8n Webhook URL
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <InfoIcon className="h-4 w-4 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent side="right" className="max-w-[300px]">
+                    <p className="text-xs mb-1">Optional: Enter n8n webhook URL to send data to ChatGPT</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </Label>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={copyJsonStructure}
+              className="h-6 px-2 text-xs"
+            >
+              Copy JSON
+            </Button>
+          </div>
+          <Input
+            id="webhook-url"
+            placeholder="https://your-n8n-instance.com/webhook/..."
+            value={webhookUrl}
+            onChange={(e) => onWebhookUrlChange(e.target.value)}
+            className="font-mono text-xs"
+            disabled={isGenerating}
+          />
+          {webhookUrl && (
+            <p className="text-xs text-muted-foreground">
+              Data will be sent to n8n when generating
+            </p>
+          )}
+        </div>
       </CardContent>
       
       <CardFooter className="flex justify-between">
@@ -114,7 +183,7 @@ const GenerationControls: React.FC<GenerationControlsProps> = ({
           {isGenerating ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />
-              <span>Generating...</span>
+              <span>Processing...</span>
             </>
           ) : (
             <>

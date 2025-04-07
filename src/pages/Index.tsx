@@ -5,12 +5,11 @@ import StyleGuideInput from '@/components/StyleGuideInput';
 import ResultsGallery from '@/components/ResultsGallery';
 import GenerationControls from '@/components/GenerationControls';
 import ContextChat from '@/components/ContextChat';
-import N8nExport from '@/components/N8nExport';
 import { useImageGeneration } from '@/hooks/useImageGeneration';
 import { useN8nIntegration } from '@/hooks/useN8nIntegration';
 import { Toaster } from "@/components/ui/toaster";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Wand2, Image as ImageIcon, PaintBucket, ScanSearch, MessageCircle, ExternalLink } from "lucide-react";
+import { Wand2, Image as ImageIcon, PaintBucket, ScanSearch, MessageCircle } from "lucide-react";
 
 const Index = () => {
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
@@ -50,6 +49,7 @@ const Index = () => {
   };
 
   const handleGenerate = () => {
+    // Generate images locally
     generateImages(
       uploadedImage,
       styleGuide,
@@ -59,23 +59,24 @@ const Index = () => {
       selectedStyle,
       contextMessages
     );
+
+    // Also send data to n8n webhook if URL is configured
+    if (webhookUrl && webhookUrl.trim() !== '') {
+      exportToN8n(
+        uploadedImage,
+        styleGuide,
+        referenceUrl,
+        contextMessages,
+        styleStrength,
+        selectedStyle
+      );
+    }
   };
 
   const handleContextMessage = (message: string) => {
     setContextMessages([...contextMessages, message]);
     // In a real implementation, this could trigger additional AI processing
     // or be stored for the next generation cycle
-  };
-
-  const handleExportToN8n = () => {
-    exportToN8n(
-      uploadedImage,
-      styleGuide,
-      referenceUrl,
-      contextMessages,
-      styleStrength,
-      selectedStyle
-    );
   };
 
   return (
@@ -95,7 +96,7 @@ const Index = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           <Tabs defaultValue="upload" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="upload" className="flex items-center gap-2">
                 <ImageIcon className="h-4 w-4" />
                 <span>Upload Image</span>
@@ -107,10 +108,6 @@ const Index = () => {
               <TabsTrigger value="chat" className="flex items-center gap-2">
                 <MessageCircle className="h-4 w-4" />
                 <span>Context Chat</span>
-              </TabsTrigger>
-              <TabsTrigger value="n8n" className="flex items-center gap-2">
-                <ExternalLink className="h-4 w-4" />
-                <span>n8n Export</span>
               </TabsTrigger>
             </TabsList>
             
@@ -141,16 +138,6 @@ const Index = () => {
             <TabsContent value="chat">
               <ContextChat onSendMessage={handleContextMessage} />
             </TabsContent>
-
-            <TabsContent value="n8n">
-              <N8nExport 
-                webhookUrl={webhookUrl}
-                onWebhookUrlChange={setWebhookUrl}
-                onExport={handleExportToN8n}
-                isExporting={isExporting}
-                hasUploadedImage={!!uploadedImage}
-              />
-            </TabsContent>
           </Tabs>
         </div>
         
@@ -162,7 +149,7 @@ const Index = () => {
             </div>
             <GenerationControls
               onGenerate={handleGenerate}
-              isGenerating={isGenerating}
+              isGenerating={isGenerating || isExporting}
               hasUploadedImage={!!uploadedImage}
               variationCount={variationCount}
               onVariationCountChange={setVariationCount}
@@ -170,6 +157,8 @@ const Index = () => {
               onStyleStrengthChange={setStyleStrength}
               selectedStyle={selectedStyle}
               onStyleChange={setSelectedStyle}
+              webhookUrl={webhookUrl}
+              onWebhookUrlChange={setWebhookUrl}
             />
             
             <div className="bg-muted rounded-lg p-4">
@@ -178,9 +167,9 @@ const Index = () => {
                 <li>Upload your image</li>
                 <li>Enter style guidelines and optional reference URL</li>
                 <li>Use the context chat to describe enhancement ideas</li>
+                <li>Configure the n8n webhook URL (optional)</li>
                 <li>Adjust generation controls</li>
                 <li>Generate variations and provide feedback</li>
-                <li>Or export to n8n + ChatGPT for advanced processing</li>
               </ol>
             </div>
           </div>
