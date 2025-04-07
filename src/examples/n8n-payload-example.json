@@ -1,0 +1,13 @@
+
+{
+  "uploadedImage": "base64_encoded_image_data_would_be_here",
+  "styleGuide": "Modern minimalist design with navy blue and light gray color scheme. Sans-serif typography with emphasis on readability. Clean lines and subtle shadows for depth.",
+  "referenceUrl": "https://example.com/brand-reference",
+  "contextMessages": [
+    "I want an ad that feels professional but approachable",
+    "The target audience is tech professionals aged 25-45",
+    "Please keep the text minimal but impactful"
+  ],
+  "styleStrength": 70,
+  "stylePreset": "balanced"
+}

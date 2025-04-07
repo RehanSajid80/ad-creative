@@ -11,8 +11,15 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ExternalLink, Loader2, SendToBack } from "lucide-react";
+import { ExternalLink, Loader2, SendToBack, InfoIcon } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useToast } from "@/components/ui/use-toast";
 
 interface N8nExportProps {
   webhookUrl: string;
@@ -29,6 +36,26 @@ const N8nExport: React.FC<N8nExportProps> = ({
   isExporting,
   hasUploadedImage
 }) => {
+  const { toast } = useToast();
+  
+  // Sample JSON to show in the tooltip
+  const sampleJson = `{
+  "uploadedImage": "base64_encoded_image_data",
+  "styleGuide": "Modern minimalist design...",
+  "referenceUrl": "https://example.com/brand",
+  "contextMessages": ["Target audience...", "..."],
+  "styleStrength": 70,
+  "stylePreset": "balanced"
+}`;
+
+  const copyJsonStructure = () => {
+    navigator.clipboard.writeText(sampleJson);
+    toast({
+      title: "Copied to clipboard",
+      description: "The JSON structure has been copied to your clipboard."
+    });
+  };
+
   return (
     <Card className="w-full">
       <CardHeader className="pb-2">
@@ -66,6 +93,26 @@ const N8nExport: React.FC<N8nExportProps> = ({
             </AlertDescription>
           </Alert>
         )}
+        
+        <div className="bg-muted p-3 rounded-md">
+          <div className="flex items-center justify-between mb-2">
+            <h4 className="text-sm font-medium">JSON Payload Structure</h4>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={copyJsonStructure}
+              className="h-7 px-2"
+            >
+              Copy
+            </Button>
+          </div>
+          <pre className="text-xs bg-background p-2 rounded border overflow-auto max-h-36">
+            {sampleJson}
+          </pre>
+          <p className="text-xs text-muted-foreground mt-2">
+            Use this structure to configure your n8n workflow nodes.
+          </p>
+        </div>
       </CardContent>
       
       <CardFooter className="flex-col space-y-2">
