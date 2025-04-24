@@ -20,6 +20,7 @@ const Index = () => {
   const [styleStrength, setStyleStrength] = useState(70);
   const [selectedStyle, setSelectedStyle] = useState('balanced');
   const [contextMessages, setContextMessages] = useState<string[]>([]);
+  const [genratedimageList, setgenratedimageList] = useState("");
   
   const {
     isGenerating,
@@ -32,6 +33,7 @@ const Index = () => {
   } = useImageGeneration();
 
   const {
+    imageList,
     isExporting,
     webhookUrl,
     setWebhookUrl,
@@ -68,7 +70,8 @@ const Index = () => {
         referenceUrl,
         contextMessages,
         styleStrength,
-        selectedStyle
+        selectedStyle,
+        variationCount
       );
     }
   };
@@ -126,6 +129,7 @@ const Index = () => {
             
             <TabsContent value="results">
               <ResultsGallery
+               genratedimageList = {imageList}
                 images={generatedImages}
                 isLoading={isGenerating}
                 onLike={handleLike}
