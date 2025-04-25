@@ -88,11 +88,11 @@ const Index = () => {
         <div className="flex items-center justify-center gap-2 mb-2">
           <ScanSearch className="h-8 w-8 text-primary" />
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            AnalyzeLens
+            Generate AI-Powered Ads for LinkedIn & Google
           </h1>
         </div>
-        <p className="text-muted-foreground mt-2">
-          Transform your images with AI-powered style analysis
+        <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">
+          Upload an image, provide context, and let our AI create compelling ad suggestions for your campaigns.
         </p>
       </header>
 
