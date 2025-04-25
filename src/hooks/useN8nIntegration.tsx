@@ -21,7 +21,11 @@ export function useN8nIntegration() {
 
 
   const [isExporting, setIsExporting] = useState(false);
-  const [webhookUrl, setWebhookUrl] = useState<string>('https://analyzelens.app.n8n.cloud/webhook-test/3dce7b94-5633-42e5-917e-906bd9c7eb59');
+  // LOCAL TEST WEBHOOK URL
+  // const [webhookUrl, setWebhookUrl] = useState<string>('https://analyzelens.app.n8n.cloud/webhook-test/3dce7b94-5633-42e5-917e-906bd9c7eb59');
+
+  // PRODUCTION WEBHOOK URL
+  const [webhookUrl, setWebhookUrl] = useState<string>('https://analyzelens.app.n8n.cloud/webhook/3dce7b94-5633-42e5-917e-906bd9c7eb59');
   
   const { toast } = useToast();
 
