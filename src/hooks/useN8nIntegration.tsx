@@ -9,11 +9,24 @@ interface N8nPayload {
   contextMessages: string[];
   styleStrength: number;
   stylePreset: string;
+  variationCount:number;
 }
 
 export function useN8nIntegration() {
+  type ImageData = {
+    url: string;
+    revised_prompt: string;
+  };
+  const [imageList, setImageList] = useState<ImageData[]>([]);
+
+
   const [isExporting, setIsExporting] = useState(false);
-  const [webhookUrl, setWebhookUrl] = useState<string>('https://analyzelens.app.n8n.cloud/webhook-test/adcreative-webhook');
+  // LOCAL TEST WEBHOOK URL
+  // const [webhookUrl, setWebhookUrl] = useState<string>('https://analyzelens.app.n8n.cloud/webhook-test/3dce7b94-5633-42e5-917e-906bd9c7eb59');
+
+  // PRODUCTION WEBHOOK URL
+  const [webhookUrl, setWebhookUrl] = useState<string>('https://analyzelens.app.n8n.cloud/webhook/3dce7b94-5633-42e5-917e-906bd9c7eb59');
+  
   const { toast } = useToast();
 
   const fileToBase64 = (file: File): Promise<string> => {
@@ -31,7 +44,8 @@ export function useN8nIntegration() {
     referenceUrl: string,
     contextMessages: string[],
     styleStrength: number,
-    stylePreset: string
+    stylePreset: string,
+    variationCount : number
   ) => {
     if (!webhookUrl) {
       toast({
@@ -60,7 +74,8 @@ export function useN8nIntegration() {
         referenceUrl,
         contextMessages,
         styleStrength,
-        stylePreset
+        stylePreset,
+        variationCount
       };
       
       console.log("Sending payload to n8n:", {
@@ -77,27 +92,27 @@ export function useN8nIntegration() {
         timestamp: new Date().toISOString(),
         message: "Test webhook connection"
       };
-      
       console.log("Sending test payload first:", testPayload);
       
       try {
-        const testResponse = await fetch(webhookUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(testPayload),
-        });
+        // const testResponse = await fetch(webhookUrl, {
+        //   method: 'POST',
+        //   headers: {
+        //     'Content-Type': 'application/json',
+        //   },
+        //   body: JSON.stringify(testPayload),
+        // });
         
-        console.log("Test payload response:", {
-          status: testResponse.status,
-          statusText: testResponse.statusText,
-          ok: testResponse.ok
-        });
+        // console.log("Test payload response:", {
+        //   status: testResponse.status,
+        //   statusText: testResponse.statusText,
+        //   ok: testResponse.ok
+        // });
         
-        if (testResponse.ok) {
+        // if (testResponse.ok) {
+
           console.log("Test payload sent successfully, now sending full payload");
-          
+          setImageList([]);
           const fullResponse = await fetch(webhookUrl, {
             method: 'POST',
             headers: {
@@ -105,13 +120,18 @@ export function useN8nIntegration() {
             },
             body: JSON.stringify(payload),
           });
+
+          const responseJson = await fullResponse.json();
           
-          console.log("Full payload response:", {
-            status: fullResponse.status,
-            statusText: fullResponse.statusText,
-            ok: fullResponse.ok
-          });
-          
+          // console.log("Full payload response:", {
+          //   status: fullResponse.status,
+          //   statusText: fullResponse.statusText,
+          //   ok: fullResponse.ok
+          // });
+          console.log(responseJson.images,"responseJson")
+
+          setImageList(responseJson.images)
+      
           if (fullResponse.ok) {
             toast({
               title: "Export successful",
@@ -120,21 +140,24 @@ export function useN8nIntegration() {
             setIsExporting(false);
             return;
           }
-        }
+       // }
+
       } catch (error) {
         console.error("Error with direct fetch:", error);
-      }
+      }  
       
       // Try with no-cors as fallback
-      console.log("Attempting no-cors mode as fallback");
-      await fetch(webhookUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-        mode: 'no-cors'
-      });
+      // console.log("Attempting no-cors mode as fallback");
+      // const testResponse1 =  await fetch(webhookUrl, {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify(payload),
+      //   mode: 'no-cors'
+      // });
+      // console.log(testResponse1,"testResponse-testResponse");
+
       
       console.log("Request sent with no-cors mode");
       toast({
@@ -155,6 +178,7 @@ export function useN8nIntegration() {
   };
 
   return {
+    imageList,
     isExporting,
     webhookUrl,
     setWebhookUrl,

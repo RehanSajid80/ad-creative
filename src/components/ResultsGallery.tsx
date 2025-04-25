@@ -10,8 +10,13 @@ export interface GeneratedImage {
   url: string;
   description: string;
 }
+interface ImageData {
+  url: string;
+  revised_prompt: string;
+}
 
 interface ResultsGalleryProps {
+  genratedimageList: ImageData[];
   images: GeneratedImage[];
   isLoading: boolean;
   onLike: (id: string) => void;
@@ -21,6 +26,7 @@ interface ResultsGalleryProps {
 }
 
 const ResultsGallery: React.FC<ResultsGalleryProps> = ({
+  genratedimageList, 
   images,
   isLoading,
   onLike,
@@ -58,20 +64,21 @@ const ResultsGallery: React.FC<ResultsGalleryProps> = ({
     );
   }
 
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-      {images.map((image) => (
-        <Card key={image.id} className="overflow-hidden transition-all duration-300 hover:shadow-lg">
+      {genratedimageList.map((image) => (
+        <Card key={image.url} className="overflow-hidden transition-all duration-300 hover:shadow-lg">
           <CardContent className="p-0">
             <img
               src={image.url}
-              alt={`Vibrant variation with text ${image.id}`}
+              alt={`Vibrant variation with text ${image.url}`}
               className="w-full h-auto object-cover"
               loading="lazy"
             />
           </CardContent>
           <CardHeader className="py-3 px-4">
-            <p className="text-sm text-gray-600">{image.description}</p>
+            <p className="text-sm text-gray-600">{image.revised_prompt}</p>
           </CardHeader>
           <CardFooter className="flex justify-between p-4 pt-0">
             <div className="flex gap-2">
@@ -79,7 +86,7 @@ const ResultsGallery: React.FC<ResultsGalleryProps> = ({
                 variant="outline"
                 size="icon"
                 className="h-8 w-8"
-                onClick={() => onLike(image.id)}
+                onClick={() => onLike(image.url)}
                 title="Like this variation"
               >
                 <ThumbsUp className="h-4 w-4" />
@@ -88,7 +95,7 @@ const ResultsGallery: React.FC<ResultsGalleryProps> = ({
                 variant="outline"
                 size="icon"
                 className="h-8 w-8"
-                onClick={() => onDislike(image.id)}
+                onClick={() => onDislike(image.url)}
                 title="Dislike this variation"
               >
                 <ThumbsDown className="h-4 w-4" />
@@ -99,7 +106,7 @@ const ResultsGallery: React.FC<ResultsGalleryProps> = ({
                 variant="outline"
                 size="icon"
                 className="h-8 w-8"
-                onClick={() => onRegenerate(image.id)}
+                onClick={() => onRegenerate(image.url)}
                 title="Generate new variation"
               >
                 <Sparkles className="h-4 w-4" />
@@ -108,7 +115,7 @@ const ResultsGallery: React.FC<ResultsGalleryProps> = ({
                 variant="secondary"
                 size="icon"
                 className="h-8 w-8"
-                onClick={() => onDownload(image.id)}
+                onClick={() => onDownload(image.url)}
                 title="Download this image"
               >
                 <Download className="h-4 w-4" />
