@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import ImageUploader from '@/components/ImageUploader';
 import StyleGuideInput from '@/components/StyleGuideInput';
@@ -9,7 +8,7 @@ import { useImageGeneration } from '@/hooks/useImageGeneration';
 import { useN8nIntegration } from '@/hooks/useN8nIntegration';
 import { Toaster } from "@/components/ui/toaster";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Wand2, Image as ImageIcon, PaintBucket, ScanSearch, MessageCircle } from "lucide-react";
+import { Wand2, Image as ImageIcon, PaintBucket, MessageCircle } from "lucide-react";
 
 const Index = () => {
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
@@ -21,7 +20,7 @@ const Index = () => {
   const [selectedStyle, setSelectedStyle] = useState('balanced');
   const [contextMessages, setContextMessages] = useState<string[]>([]);
   const [genratedimageList, setgenratedimageList] = useState("");
-  
+
   const {
     isGenerating,
     generatedImages,
@@ -51,7 +50,6 @@ const Index = () => {
   };
 
   const handleGenerate = () => {
-    // Generate images locally
     generateImages(
       uploadedImage,
       styleGuide,
@@ -62,7 +60,6 @@ const Index = () => {
       contextMessages
     );
 
-    // Also send data to n8n webhook if URL is configured
     if (webhookUrl && webhookUrl.trim() !== '') {
       exportToN8n(
         uploadedImage,
@@ -78,107 +75,115 @@ const Index = () => {
 
   const handleContextMessage = (message: string) => {
     setContextMessages([...contextMessages, message]);
-    // In a real implementation, this could trigger additional AI processing
-    // or be stored for the next generation cycle
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
-      <header className="text-center mb-8">
-        <div className="flex items-center justify-center gap-2 mb-2">
-          <ScanSearch className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            Generate AI-Powered Ads for LinkedIn & Google
-          </h1>
-        </div>
-        <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">
-          Upload an image, provide context, and let our AI create compelling ad suggestions for your campaigns.
-        </p>
-      </header>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
-          <Tabs defaultValue="upload" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="upload" className="flex items-center gap-2">
-                <ImageIcon className="h-4 w-4" />
-                <span>Upload Image</span>
-              </TabsTrigger>
-              <TabsTrigger value="results" className="flex items-center gap-2">
-                <PaintBucket className="h-4 w-4" />
-                <span>Results</span>
-              </TabsTrigger>
-              <TabsTrigger value="chat" className="flex items-center gap-2">
-                <MessageCircle className="h-4 w-4" />
-                <span>Context Chat</span>
-              </TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="upload" className="space-y-6">
-              <ImageUploader 
-                onImageUploaded={handleImageUpload}
-                previewUrl={imagePreview}
-              />
-              <StyleGuideInput
-                styleGuide={styleGuide}
-                onStyleGuideChange={setStyleGuide}
-                referenceUrl={referenceUrl}
-                onReferenceUrlChange={setReferenceUrl}
-              />
-            </TabsContent>
-            
-            <TabsContent value="results">
-              <ResultsGallery
-               genratedimageList = {imageList}
-                images={generatedImages}
-                isLoading={isGenerating}
-                onLike={handleLike}
-                onDislike={handleDislike}
-                onDownload={handleDownload}
-                onRegenerate={handleRegenerate}
-              />
-            </TabsContent>
-
-            <TabsContent value="chat">
-              <ContextChat onSendMessage={handleContextMessage} />
-            </TabsContent>
-          </Tabs>
-        </div>
-        
-        <div className="lg:col-span-1">
-          <div className="sticky top-6 space-y-6">
-            <div className="flex items-center gap-2 mb-4">
-              <Wand2 className="h-5 w-5 text-primary" />
-              <h2 className="text-xl font-semibold">Generation Controls</h2>
-            </div>
-            <GenerationControls
-              onGenerate={handleGenerate}
-              isGenerating={isGenerating || isExporting}
-              hasUploadedImage={!!uploadedImage}
-              variationCount={variationCount}
-              onVariationCountChange={setVariationCount}
-              styleStrength={styleStrength}
-              onStyleStrengthChange={setStyleStrength}
-              selectedStyle={selectedStyle}
-              onStyleChange={setSelectedStyle}
-              webhookUrl={webhookUrl}
-              onWebhookUrlChange={setWebhookUrl}
+    <div className="min-h-screen bg-white">
+      <header className="border-b border-gray-100 py-6">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center gap-3">
+            <img 
+              src="/lovable-uploads/da1dcfbd-82a4-4a6d-8595-33adcf5b087e.png" 
+              alt="Logo" 
+              className="h-10 w-auto"
             />
-            
-            <div className="bg-muted rounded-lg p-4">
-              <h3 className="font-medium mb-2">How it works</h3>
-              <ol className="list-decimal ml-5 space-y-1 text-sm text-muted-foreground">
-                <li>Upload your image</li>
-                <li>Enter style guidelines and optional reference URL</li>
-                <li>Use the context chat to describe enhancement ideas</li>
-                <li>Configure the n8n webhook URL (optional)</li>
-                <li>Adjust generation controls</li>
-                <li>Generate variations and provide feedback</li>
-              </ol>
+            <div>
+              <h1 className="text-[#1a2b3d] text-2xl font-semibold">
+                Generate AI-Powered Ads
+              </h1>
+              <p className="text-[#486581] text-sm mt-1">
+                Upload an image, provide context, and let our AI create compelling ad suggestions for your campaigns.
+              </p>
             </div>
           </div>
         </div>
-      </div>
+      </header>
+
+      <main className="container mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-6">
+            <Tabs defaultValue="upload" className="w-full">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="upload" className="flex items-center gap-2">
+                  <ImageIcon className="h-4 w-4" />
+                  <span>Upload Image</span>
+                </TabsTrigger>
+                <TabsTrigger value="results" className="flex items-center gap-2">
+                  <PaintBucket className="h-4 w-4" />
+                  <span>Results</span>
+                </TabsTrigger>
+                <TabsTrigger value="chat" className="flex items-center gap-2">
+                  <MessageCircle className="h-4 w-4" />
+                  <span>Context Chat</span>
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="upload" className="space-y-6">
+                <ImageUploader 
+                  onImageUploaded={handleImageUpload}
+                  previewUrl={imagePreview}
+                />
+                <StyleGuideInput
+                  styleGuide={styleGuide}
+                  onStyleGuideChange={setStyleGuide}
+                  referenceUrl={referenceUrl}
+                  onReferenceUrlChange={setReferenceUrl}
+                />
+              </TabsContent>
+              
+              <TabsContent value="results">
+                <ResultsGallery
+                  genratedimageList = {imageList}
+                  images={generatedImages}
+                  isLoading={isGenerating}
+                  onLike={handleLike}
+                  onDislike={handleDislike}
+                  onDownload={handleDownload}
+                  onRegenerate={handleRegenerate}
+                />
+              </TabsContent>
+
+              <TabsContent value="chat">
+                <ContextChat onSendMessage={handleContextMessage} />
+              </TabsContent>
+            </Tabs>
+          </div>
+          
+          <div className="lg:col-span-1">
+            <div className="sticky top-6 space-y-6">
+              <div className="flex items-center gap-2 mb-4">
+                <Wand2 className="h-5 w-5 text-primary" />
+                <h2 className="text-xl font-semibold text-[#1a2b3d]">Generation Controls</h2>
+              </div>
+              <GenerationControls
+                onGenerate={handleGenerate}
+                isGenerating={isGenerating || isExporting}
+                hasUploadedImage={!!uploadedImage}
+                variationCount={variationCount}
+                onVariationCountChange={setVariationCount}
+                styleStrength={styleStrength}
+                onStyleStrengthChange={setStyleStrength}
+                selectedStyle={selectedStyle}
+                onStyleChange={setSelectedStyle}
+                webhookUrl={webhookUrl}
+                onWebhookUrlChange={setWebhookUrl}
+              />
+              
+              <div className="bg-muted rounded-lg p-4">
+                <h3 className="font-medium mb-2">How it works</h3>
+                <ol className="list-decimal ml-5 space-y-1 text-sm text-muted-foreground">
+                  <li>Upload your image</li>
+                  <li>Enter style guidelines and optional reference URL</li>
+                  <li>Use the context chat to describe enhancement ideas</li>
+                  <li>Configure the n8n webhook URL (optional)</li>
+                  <li>Adjust generation controls</li>
+                  <li>Generate variations and provide feedback</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
       <Toaster />
     </div>
   );
