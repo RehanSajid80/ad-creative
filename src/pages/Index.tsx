@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import ImageUploader from '@/components/ImageUploader';
 import StyleGuideInput from '@/components/StyleGuideInput';
@@ -79,19 +80,19 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      <header className="border-b border-gray-100 py-6">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center gap-3">
+      <header className="border-b border-gray-100 bg-white shadow-sm">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center gap-6">
             <img 
               src="/lovable-uploads/da1dcfbd-82a4-4a6d-8595-33adcf5b087e.png" 
               alt="Logo" 
-              className="h-10 w-auto"
+              className="h-12 w-auto transition-transform hover:scale-105"
             />
-            <div>
-              <h1 className="text-[#1a2b3d] text-2xl font-semibold">
-                Generate AI-Powered Ads
+            <div className="border-l border-gray-200 pl-6">
+              <h1 className="bg-gradient-to-r from-[#1a2b3d] to-[#2a3b4d] bg-clip-text text-2xl font-bold text-transparent lg:text-3xl">
+                Generate AI-Powered Ads for LinkedIn & Google
               </h1>
-              <p className="text-[#486581] text-sm mt-1">
+              <p className="mt-2 text-[#486581] text-sm lg:text-base">
                 Upload an image, provide context, and let our AI create compelling ad suggestions for your campaigns.
               </p>
             </div>
