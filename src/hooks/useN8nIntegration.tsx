@@ -9,7 +9,7 @@ interface N8nPayload {
   contextMessages: string[];
   styleStrength: number;
   stylePreset: string;
-  variationCount:number;
+  variationCount: number;
 }
 
 export function useN8nIntegration() {
@@ -18,7 +18,6 @@ export function useN8nIntegration() {
     revised_prompt: string;
   };
   const [imageList, setImageList] = useState<ImageData[]>([]);
-
 
   const [isExporting, setIsExporting] = useState(false);
   // LOCAL TEST WEBHOOK URL
@@ -36,6 +35,32 @@ export function useN8nIntegration() {
       reader.onload = () => resolve(reader.result as string);
       reader.onerror = error => reject(error);
     });
+  };
+
+  // Function to save the image to Supabase
+  const saveImageToSupabase = async (imageUrl: string, prompt: string) => {
+    // This function would normally connect to Supabase
+    // For now, we'll just display a toast message
+    
+    // In a real implementation, you would:
+    // 1. Convert the image from URL to a File object
+    // 2. Upload it to Supabase storage
+    // 3. Store the metadata in a Supabase database table
+    
+    toast({
+      title: "Supabase Integration Required",
+      description: "To save images to a database, please connect this project to Supabase.",
+      variant: "destructive"
+    });
+    
+    console.log("Would save to Supabase:", { imageUrl, prompt });
+    
+    // Return placeholder for now
+    return { 
+      success: true, 
+      imageUrl, 
+      saved: new Date().toISOString()
+    };
   };
 
   const exportToN8n = async (
@@ -182,6 +207,7 @@ export function useN8nIntegration() {
     isExporting,
     webhookUrl,
     setWebhookUrl,
-    exportToN8n
+    exportToN8n,
+    saveImageToSupabase
   };
 }

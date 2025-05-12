@@ -11,13 +11,15 @@ interface Message {
   text: string;
   timestamp: Date;
   isUser: boolean;
+  imageUrl?: string;
 }
 
 interface ContextChatProps {
   onSendMessage?: (message: string) => void;
+  generatedImages?: Array<{url: string, revised_prompt: string}>;
 }
 
-const ContextChat: React.FC<ContextChatProps> = ({ onSendMessage }) => {
+const ContextChat: React.FC<ContextChatProps> = ({ onSendMessage, generatedImages }) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome-msg",
@@ -33,6 +35,24 @@ const ContextChat: React.FC<ContextChatProps> = ({ onSendMessage }) => {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // Add generated images to the chat
+  useEffect(() => {
+    if (generatedImages && generatedImages.length > 0) {
+      const lastImage = generatedImages[generatedImages.length - 1];
+      
+      // Add system message with the image
+      const systemMessage: Message = {
+        id: `msg-img-${Date.now()}`,
+        text: `Generated image with prompt: ${lastImage.revised_prompt}`,
+        timestamp: new Date(),
+        isUser: false,
+        imageUrl: lastImage.url
+      };
+      
+      setMessages(prev => [...prev, systemMessage]);
+    }
+  }, [generatedImages]);
 
   const handleSendMessage = () => {
     if (!newMessage.trim()) return;
@@ -99,6 +119,15 @@ const ContextChat: React.FC<ContextChatProps> = ({ onSendMessage }) => {
                     : 'bg-muted text-muted-foreground mr-8'
                 }`}
               >
+                {message.imageUrl && (
+                  <div className="mb-2">
+                    <img 
+                      src={message.imageUrl} 
+                      alt="Generated image" 
+                      className="rounded-md max-h-[200px] w-auto"
+                    />
+                  </div>
+                )}
                 <p className="text-sm">{message.text}</p>
                 <div className="text-xs mt-1 opacity-70">
                   {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}

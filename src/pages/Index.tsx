@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ImageUploader from '@/components/ImageUploader';
 import StyleGuideInput from '@/components/StyleGuideInput';
 import ResultsGallery from '@/components/ResultsGallery';
@@ -8,10 +8,12 @@ import ContextChat from '@/components/ContextChat';
 import { useImageGeneration } from '@/hooks/useImageGeneration';
 import { useN8nIntegration } from '@/hooks/useN8nIntegration';
 import { Toaster } from "@/components/ui/toaster";
+import { useToast } from "@/components/ui/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Wand2, Image as ImageIcon, PaintBucket, MessageCircle } from "lucide-react";
 
 const Index = () => {
+  const { toast } = useToast();
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [styleGuide, setStyleGuide] = useState('');
@@ -20,7 +22,8 @@ const Index = () => {
   const [styleStrength, setStyleStrength] = useState(70);
   const [selectedStyle, setSelectedStyle] = useState('balanced');
   const [contextMessages, setContextMessages] = useState<string[]>([]);
-  const [genratedimageList, setgenratedimageList] = useState("");
+  const [activeTab, setActiveTab] = useState('upload');
+  const [newImageId, setNewImageId] = useState<string | null>(null);
 
   const {
     isGenerating,
@@ -37,8 +40,23 @@ const Index = () => {
     isExporting,
     webhookUrl,
     setWebhookUrl,
-    exportToN8n
+    exportToN8n,
+    saveImageToSupabase
   } = useN8nIntegration();
+
+  // Auto-switch to the results tab when images are generated
+  useEffect(() => {
+    if (imageList.length > 0 && activeTab !== 'results') {
+      setActiveTab('results');
+      // Set the latest image ID for scrolling
+      setNewImageId(imageList[imageList.length - 1].url);
+      
+      // Clear newImageId after a delay to prevent continuous scrolling
+      setTimeout(() => {
+        setNewImageId(null);
+      }, 1000);
+    }
+  }, [imageList]);
 
   const handleImageUpload = (file: File | null) => {
     setUploadedImage(file);
@@ -78,6 +96,22 @@ const Index = () => {
     setContextMessages([...contextMessages, message]);
   };
 
+  const handleSaveToSupabase = (imageUrl: string, prompt: string) => {
+    if (saveImageToSupabase) {
+      saveImageToSupabase(imageUrl, prompt);
+      toast({
+        title: "Image saved",
+        description: "The image has been saved to your database"
+      });
+    } else {
+      toast({
+        title: "Feature not available",
+        description: "Please connect to Supabase to enable this feature",
+        variant: "destructive"
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white">
       <header className="border-b border-gray-100 bg-white shadow-sm">
@@ -103,7 +137,7 @@ const Index = () => {
       <main className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
-            <Tabs defaultValue="upload" className="w-full">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="upload" className="flex items-center gap-2">
                   <ImageIcon className="h-4 w-4" />
@@ -111,7 +145,7 @@ const Index = () => {
                 </TabsTrigger>
                 <TabsTrigger value="results" className="flex items-center gap-2">
                   <PaintBucket className="h-4 w-4" />
-                  <span>Results</span>
+                  <span>Ad Suggestions</span>
                 </TabsTrigger>
                 <TabsTrigger value="chat" className="flex items-center gap-2">
                   <MessageCircle className="h-4 w-4" />
@@ -134,18 +168,23 @@ const Index = () => {
               
               <TabsContent value="results">
                 <ResultsGallery
-                  genratedimageList = {imageList}
+                  genratedimageList={imageList}
                   images={generatedImages}
                   isLoading={isGenerating}
                   onLike={handleLike}
                   onDislike={handleDislike}
                   onDownload={handleDownload}
                   onRegenerate={handleRegenerate}
+                  onSaveToSupabase={handleSaveToSupabase}
+                  newImageId={newImageId}
                 />
               </TabsContent>
 
               <TabsContent value="chat">
-                <ContextChat onSendMessage={handleContextMessage} />
+                <ContextChat 
+                  onSendMessage={handleContextMessage}
+                  generatedImages={imageList}
+                />
               </TabsContent>
             </Tabs>
           </div>

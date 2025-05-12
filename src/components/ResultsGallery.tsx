@@ -1,9 +1,10 @@
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ThumbsUp, ThumbsDown, Download, Sparkles } from "lucide-react";
+import { ThumbsUp, ThumbsDown, Download, Sparkles, Save } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 export interface GeneratedImage {
   id: string;
@@ -23,6 +24,8 @@ interface ResultsGalleryProps {
   onDislike: (id: string) => void;
   onDownload: (id: string) => void;
   onRegenerate: (id: string) => void;
+  onSaveToSupabase?: (imageUrl: string, prompt: string) => void;
+  newImageId?: string | null;
 }
 
 const ResultsGallery: React.FC<ResultsGalleryProps> = ({
@@ -32,8 +35,20 @@ const ResultsGallery: React.FC<ResultsGalleryProps> = ({
   onLike,
   onDislike,
   onDownload,
-  onRegenerate
+  onRegenerate,
+  onSaveToSupabase,
+  newImageId
 }) => {
+  const { toast } = useToast();
+  const newImageRef = useRef<HTMLDivElement>(null);
+
+  // Effect to scroll to the new image when it's added
+  useEffect(() => {
+    if (newImageId && newImageRef.current) {
+      newImageRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, [newImageId, genratedimageList]);
+
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -54,7 +69,7 @@ const ResultsGallery: React.FC<ResultsGalleryProps> = ({
     );
   }
 
-  if (images.length === 0) {
+  if (images.length === 0 && genratedimageList.length === 0) {
     return (
       <div className="text-center py-12">
         <p className="text-muted-foreground">
@@ -64,11 +79,15 @@ const ResultsGallery: React.FC<ResultsGalleryProps> = ({
     );
   }
 
-
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-      {genratedimageList.map((image) => (
-        <Card key={image.url} className="overflow-hidden transition-all duration-300 hover:shadow-lg">
+      {genratedimageList.map((image, index) => (
+        <Card 
+          key={image.url} 
+          className="overflow-hidden transition-all duration-300 hover:shadow-lg"
+          ref={newImageId === image.url ? newImageRef : null}
+          id={`image-${index}`}
+        >
           <CardContent className="p-0">
             <img
               src={image.url}
@@ -111,6 +130,17 @@ const ResultsGallery: React.FC<ResultsGalleryProps> = ({
               >
                 <Sparkles className="h-4 w-4" />
               </Button>
+              {onSaveToSupabase && (
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => onSaveToSupabase(image.url, image.revised_prompt)}
+                  title="Save to database"
+                >
+                  <Save className="h-4 w-4" />
+                </Button>
+              )}
               <Button
                 variant="secondary"
                 size="icon"
